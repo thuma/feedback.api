@@ -122,7 +122,7 @@ def application(env, start_response):
           values)
         id = res.fetchall()[0][0]
 
-        start_response('200 OK', [('Content-Type', 'application/json')])
+        start_response('200 OK', [('Access-Control-Allow-Origin', '*'),('Content-Type', 'application/json')])
         return [bytes(json.dumps({"id":id}), 'utf-8')]
       if env['REQUEST_METHOD'] == "GET":
         res  = cur.execute("""
@@ -136,14 +136,14 @@ def application(env, start_response):
           "feedback":rad[3]
           }
         allaexempel = list(map(tillDict,res.fetchall()))
-        start_response('200 OK', [('Content-Type', 'application/json')])
+        start_response('200 OK', [('Access-Control-Allow-Origin', '*'),('Content-Type', 'application/json')])
         return [bytes(json.dumps({"exempel":allaexempel}), 'utf-8')]
-      start_response('400 OK', [('Content-Type', 'text/html')])
+      start_response('200 OK', [('Access-Control-Allow-Origin', '*'),("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, authorization, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"),('Content-Type', 'text/html')])
       return [b"POST/GET supported"]
 
 
     else:
-      start_response('404 Not Found', [('Content-Type', 'text/html')])
+      start_response('404 Not Found', [('Access-Control-Allow-Origin', '*'),('Content-Type', 'text/html')])
       return [b'<h1>Not Found</h1>']
 
 print('Serving on 6588...')
