@@ -34,7 +34,7 @@ def application(env, start_response):
         if length!=0 and ("application/json" in env.get('CONTENT_TYPE', '')):
           jsondata = json.loads(env['wsgi.input'].read(length))
         else:
-          start_response('400 Bad Request', [('Content-Type', 'application/json')])
+          start_response('400 Bad Request', [('Access-Control-Allow-Origin', '*'), ('Content-Type', 'application/json')])
           return """{"error":"json required"}"""
 
     if env['PATH_INFO'] == '/exemepel':
@@ -68,9 +68,9 @@ def application(env, start_response):
           DELETE FROM svar WHERE exempelid = ?;""", (id,));
         con.commit()
 
-        start_response('200 OK', [('Content-Type', 'application/json')])
+        start_response('200 OK', [('Access-Control-Allow-Origin', '*'),('Content-Type', 'application/json')])
         return [bytes(json.dumps({"id":id}), 'utf-8')]
-      if env['REQUEST_METHOD'] == "GET":
+      elif env['REQUEST_METHOD'] == "GET":
         res  = cur.execute("""
           SELECT rowid, elev, uppgift, typ, beskrivning FROM exempel;"""
           )
@@ -83,8 +83,17 @@ def application(env, start_response):
           "beskrivning":rad[4]
           }
         allaexempel = list(map(tillDict,res.fetchall()))
-        start_response('200 OK', [('Content-Type', 'application/json')])
+        start_response('200 OK', [('Access-Control-Allow-Origin', '*'),('Content-Type', 'application/json')])
         return [bytes(json.dumps({"exempel":allaexempel}), 'utf-8')]
+      elif env['REQUEST_METHOD'] == "OPTIONS":
+        start_response('200 OK', [
+          ('Access-Control-Allow-Origin', '*'),
+          ('Access-Control-Allow-Credentials', 'true'),
+          ("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT"),
+          ("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, authorization, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"),
+          ('Content-Type', 'text/html')]
+        )
+      return [b""]
 
     elif env['PATH_INFO'] == '/svar':
       if env['REQUEST_METHOD'] == "POST":
@@ -129,8 +138,9 @@ def application(env, start_response):
         allaexempel = list(map(tillDict,res.fetchall()))
         start_response('200 OK', [('Content-Type', 'application/json')])
         return [bytes(json.dumps({"exempel":allaexempel}), 'utf-8')]
-      start_response('200 OK', [('Content-Type', 'text/html')])
-      return [b"<b>hello world</b>"]
+      start_response('400 OK', [('Content-Type', 'text/html')])
+      return [b"POST/GET supported"]
+
 
     else:
       start_response('404 Not Found', [('Content-Type', 'text/html')])
