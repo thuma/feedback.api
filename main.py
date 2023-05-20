@@ -37,7 +37,7 @@ def application(env, start_response):
           start_response('400 Bad Request', [('Access-Control-Allow-Origin', '*'), ('Content-Type', 'application/json')])
           return """{"error":"json required"}"""
 
-    if env['PATH_INFO'] == '/exemepel':
+    if env['PATH_INFO'] == '/exempel':
       if env['REQUEST_METHOD'] == "POST":
         values = (
           jsondata["elev"],
@@ -126,7 +126,7 @@ def application(env, start_response):
         return [bytes(json.dumps({"id":id}), 'utf-8')]
       if env['REQUEST_METHOD'] == "GET":
         res  = cur.execute("""
-          SELECT rowid, exempelid, elev, svar, feedback FROM svar;"""
+          SELECT exempelid, elev, svar, feedback FROM svar;"""
           )
         def tillDict(rad):
           return {
@@ -135,9 +135,9 @@ def application(env, start_response):
           "svar":rad[2],
           "feedback":rad[3]
           }
-        allaexempel = list(map(tillDict,res.fetchall()))
+        allasvar = list(map(tillDict,res.fetchall()))
         start_response('200 OK', [('Access-Control-Allow-Origin', '*'),('Content-Type', 'application/json')])
-        return [bytes(json.dumps({"exempel":allaexempel}), 'utf-8')]
+        return [bytes(json.dumps({"svar":allasvar}), 'utf-8')]
       start_response('200 OK', [('Access-Control-Allow-Origin', '*'),("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, authorization, Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"),('Content-Type', 'text/html')])
       return [b"POST/GET supported"]
 
